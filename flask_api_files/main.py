@@ -3,6 +3,7 @@ from flask import Flask,request,jsonify
 from flask_cors import CORS
 import bs4
 import re
+
 import joblib
 from datetime import timedelta
 import pandas as pd
@@ -40,6 +41,11 @@ def live_tweets():
         tweet = re.sub(r'&amp;', '&', tweet)
         tweet=re.sub(r" +"," ",tweet)
         tweet=tweet.strip()
+        #tweet=tweet.lower()
+        #word_tokens = word_tokenize(tweet)
+        #filtered_tweet = [w for w in word_tokens if not w in stop_words]
+        #return ' '.join(filtered_tweet)
+        #print(tweet)
         cleaned_tweets.append(tweet)
         para=para+tweet
      stop_words = set(stopwords.words('english'))
@@ -105,8 +111,14 @@ def live_tweets():
      sentimentt.append('Positive')
      sentimentt.append('Negative')
      sentimentt.append('Neutral')
+     #df1=pd.DataFrame(sentimentt,columns=['Sentiment'])
+     #df2=pd.DataFrame(count,columns=['Count'])
+     #dff=pd.concat([df1,df2],axis=1,ignore_index=True)
+     #dff.to_csv('count.csv',index = False)
+     #stt='success'
      df['Sentiment']=sent
      df_table=df[['text','Sentiment']]
+     #df_table.to_csv('tweet_table.csv')
      tweets_dict={}
      tweets_dict['para']=para
      tweets_dict['positive']=pos
@@ -114,6 +126,8 @@ def live_tweets():
      tweets_dict['neutral']=neu
      tweets_dict['text']=list(df_table['text'])
      tweets_dict['Sentiment']=list(df_table['Sentiment'])
+
+
      return jsonify({'prediction': tweets_dict})
 
 
@@ -194,11 +208,37 @@ def lockdownPrediction():
         final_dict['recovered']=list(final_pd['recovered'].astype('int64'))
         final_dict['sentiment_date']=list(final_pd['sentiment_date'])
         final_dict['sentiment_score']=list(final_pd['sentiment_score'].astype('float'))
+        #final_pd.to_csv('final_lockdown_pred.csv',index=False)
 
         return jsonify({'prediction': final_dict})
+@app.route('/trending',methods=['GET','POST'])
+def trending_hastags():
+    trending = []
+    auth = tweepy.OAuthHandler('d2PWAgPJ46WALqw92JhVRdYue', 'WkoPasIYAwvJspylhr3bikyvkYCSgFhFbEqbqoF4Lk1cVQtKCe')
+    auth.set_access_token("1010912451792195585-Oy9Xtv8kkm8kGPIwR8v6tuhPGkG4CZ","RtrZKT9mVhCLmGaSVN3t3f1oaudGdLeLLa98UuOKbQg3T")
+
+    api = tweepy.API(auth)
+
+# WOEID of India
+    woeid = 2282863
+
+# fetching the trends
+    trends = api.trends_place(id = woeid)
+
+# printing the information
+    print("The top trends for the location are :")
+
+    for value in trends:
+        for trend in value['trends']:
+            if(trend['name'].startswith('#')):
+                trending.append(trend['name'][1:])
+    print(trending)
+    return jsonify(trending)
 if __name__ == '__main__':
     try:
         port = int(sys.argv[1]) # This is for a command-line input
     except:
         port = 5000 # If you don't provide any port the port will be set to 12345
+
+    
     app.run(port=port, debug=True)
