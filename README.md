@@ -5,7 +5,7 @@ The proposed solution uses tweets to analyse sentiments of Indians during the Co
 
 <b>Visualisation Dashboard URL: https://covidsentiments.eu-gb.mybluemix.net/</b>
 
-<b>Video URL: https://youtu.be/wamMQDZyasE</b>
+<b>Video URL: https://youtu.be/wFFw8mUxBYM</b>
 
 <b>data folder</b>
 
